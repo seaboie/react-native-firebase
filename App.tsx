@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Text ,View} from 'react-native';
+import { Alert, Text ,Touchable,TouchableOpacity,View} from 'react-native';
 
 import firestore from '@react-native-firebase/firestore';
+import database from '@react-native-firebase/database';
 
 type MyDataProps = {
   firstName: string,
   lastName: string,
-  age: number,
-  hobby: HobbyProps
 }
 
 type HobbyProps = {
@@ -31,19 +30,35 @@ const App = () => {
     
   }
 
+  const getDatabase = async() => {
+     const d = await database()
+      .ref('/users/1')
+      .on('value', snapshot => {
+        const res = snapshot.val() as MyDataProps;
+        console.log("$$$$$ App ::: Line : 40 ::: " +  res.firstName); 
+        
+        return res;
+      })
+
+      
+      
+  }
+
   useEffect(() => {
 
-    getData();
+    getDatabase();
     
-    return () => {
-      
-    }
-  }, [])
+    return () => {}
+  }, [getDatabase()])
   
   return (  
      <View style={[{flex: 1, alignItems: 'center', justifyContent: 'center'}]} > 
-       <Text style= {[{fontSize: 24}]}>{myData?.firstName } {myData?.lastName} อายุ  {myData?.age}</Text>
-        <Text style= {[]}>{myData?.hobby.map((e) => e + " \n")}</Text>
+       <Text style= {[{fontSize: 24}]}>{myData?.firstName ?? "aa"} {myData?.lastName ?? "bb"} </Text>
+        <Text style= {[]}>Hey</Text>
+
+        <TouchableOpacity onPress={() => {getDatabase()}}>
+           <Text style= {[]}>Click me</Text>
+        </TouchableOpacity>
     </View>
   );
 }
