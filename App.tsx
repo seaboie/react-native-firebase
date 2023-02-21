@@ -13,7 +13,8 @@ const App = () => {
 
   const [user, setUser] = useState<DataProps[] | null>(null);
 
-  
+  const [isUpdateData, setIsUpdateData] = useState(false);
+  const [selectedCardIndex, setSelectedCardIndex] = useState<number | null>(null);
 
   const [inputNameValue, setInputNameValue] = useState<string>("");
   const [inputLastName, setInputLastName] = useState<string>("");
@@ -21,7 +22,7 @@ const App = () => {
   const [list, setList] = useState(null);
 
   const database = firebase.app().database('https://rnfirebase-bc2f6-default-rtdb.asia-southeast1.firebasedatabase.app/').ref('users/');
-  const addDatabase = (index: number) => {
+  const addOrUpdateDatabase = (index: number) => {
     const res = firebase.app().database('https://rnfirebase-bc2f6-default-rtdb.asia-southeast1.firebasedatabase.app/').ref('users/' + index);
     return res;
   }
@@ -34,31 +35,62 @@ const App = () => {
         const u = snapshot.val() as DataProps[];
 
         setUser(u);
-        
+
 
       })
   }
 
   const addData = async () => {
     let index = user?.length ?? 0;
-    const res = await addDatabase(index)
-      .set({
-        firstName: inputNameValue,
-        lastName: inputLastName
-      })
-      .then(() => {
-        Alert.alert('Success added...');
-      })
+    if (inputNameValue.length > 0 && inputLastName.length > 0) {
+      const res = await addOrUpdateDatabase(index)
+        .set({
+          firstName: inputNameValue,
+          lastName: inputLastName
+        })
+        .then(() => {
+          Alert.alert('Success added...');
+        })
 
-    setInputNameValue("");
-    setInputLastName("");
+      setInputNameValue("");
+      setInputLastName("");
+    } else {
+      Alert.alert("Oops !!! \n กรุณากรอกช้อมูล ให้ครบด้วยนะค่ะ");
+    }
+  }
+
+  const updateData = async () => {
+    if (inputNameValue.length > 0 && inputLastName.length > 0) {
+      if (selectedCardIndex !== null) {
+        await addOrUpdateDatabase(selectedCardIndex)
+          .update({
+            firstName: inputNameValue,
+            lastName: inputLastName
+          })
+          .then(() => {
+            setInputNameValue("");
+            setInputLastName("");
+            setIsUpdateData(false)
+          })
+      }
+    } else {
+      Alert.alert("Oops !!! \n กรุณากรอกช้อมูล ให้ครบด้วยนะค่ะ");
+    }
+  }
+
+  const cardPress = (cardIndex: number, cardValue: DataProps) => {
+    setIsUpdateData(!isUpdateData);
+    setSelectedCardIndex(cardIndex);
+
+    setInputNameValue(cardValue.firstName);
+    setInputLastName(cardValue.lastName);
   }
 
   useEffect(() => {
     handleData()
 
     return () => {
-
+      handleData();
     }
   }, [])
 
@@ -70,7 +102,7 @@ const App = () => {
         <StatusBar barStyle="dark-content" />
         <View style={[{ flex: 1, paddingHorizontal: sc.padMid }]} >
 
-          <Text style={[gbs.head5]}>Todo App</Text>
+          <Text style={[gbs.head5]}>{isUpdateData ? "Update Data" : "To Do App"}</Text>
 
           <TextInput
             style={{ height: sc.buttonHeight, borderRadius: sc.maxSpace, borderWidth: sc.minSpace, borderColor: colors.thirdBlue, paddingHorizontal: sc.padMid, backgroundColor: colors.primaryBackground, fontSize: sc.title, marginVertical: sc.caption }}
@@ -86,33 +118,50 @@ const App = () => {
             onChangeText={(value) => { setInputLastName(value) }}
           />
 
-          <TouchableOpacity
-            onPress={() => { addData() }}
-            style={{ height: sc.buttonHeight, width: "100%", backgroundColor: colors.primaryBlue, borderWidth: sc.midSpace, borderColor: colors.backgroundAuth, alignItems: 'center', justifyContent: 'center', borderRadius: 300, marginVertical: sc.body }}
-          >
-            <Text style={[{ color: colors.white, fontSize: sc.body }]}>Add</Text>
-          </TouchableOpacity>
+          {
+            isUpdateData
+              ? (
+                <TouchableOpacity
+                  onPress={() => { updateData() }}
+                  style={{ height: sc.buttonHeight, width: "100%", backgroundColor: colors.secondary, borderWidth: sc.midSpace, borderColor: colors.backgroundAuth, alignItems: 'center', justifyContent: 'center', borderRadius: 300, marginVertical: sc.body }}
+                >
+                  <Text style={[{ color: colors.white, fontSize: sc.body }]}>Update Data</Text>
+                </TouchableOpacity>
+              )
+              : (
+                <TouchableOpacity
+                  onPress={() => { addData() }}
+                  style={{ height: sc.buttonHeight, width: "100%", backgroundColor: colors.primaryBlue, borderWidth: sc.midSpace, borderColor: colors.backgroundAuth, alignItems: 'center', justifyContent: 'center', borderRadius: 300, marginVertical: sc.body }}
+                >
+                  <Text style={[{ color: colors.white, fontSize: sc.body }]}>Add</Text>
+                </TouchableOpacity>
+              )
+          }
 
           <Text style={[{ fontSize: sc.head4 }]}>Todo Lists</Text>
 
           <View style={[styles.container]}>
 
-            
 
-            <FlatList 
+
+            <FlatList
               data={user}
-              style={{flexGrow: 1}}
+              style={{ flexGrow: 1 }}
               renderItem={(item) => {
-                
-                  if (item.item !== null) {
-                    return (
-                      <View style={[ { height: sc.buttonAuthHeight, elevation: sc.body, shadowColor: 'black', shadowOpacity: 0.1, shadowOffset: {width: 0, height: 0} , shadowRadius: sc.maxSpace, backgroundColor: 'white', padding: sc.padMid, margin: sc.caption }]} >
-                            <Text style= {[]}>{item.item.firstName} {item.item.lastName}</Text>
-                      </View>
-                    )
-                  }
-                  return (<></>)
-                
+
+                if (item.item !== null) {
+                  return (
+                    <TouchableOpacity
+                      onPress={() => {
+                        cardPress(item.index, item.item);
+                      }}
+                      style={[{ height: sc.buttonAuthHeight, elevation: sc.body, shadowColor: 'black', shadowOpacity: 0.1, shadowOffset: { width: 0, height: 0 }, shadowRadius: sc.maxSpace, backgroundColor: 'white', padding: sc.padMid, margin: sc.caption }]} >
+                      <Text style={[]}>{item.item.firstName} {item.item.lastName}</Text>
+                    </TouchableOpacity>
+                  )
+                }
+                return (<></>)
+
               }}
             />
 
