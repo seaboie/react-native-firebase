@@ -15,39 +15,39 @@ const globalStyles = StyleSheet.create({
     },
     head5: {
         fontSize: sc.head5,
-        fontFamily: 'Mitr-Medium',
+        // fontFamily: 'Mitr-Medium',
     },
     head4: {
         fontSize: sc.head4,
-        fontFamily: 'Mitr-Medium',
+        // fontFamily: 'Mitr-Medium',
     },
     head3: {
         fontSize: sc.head3,
-        fontFamily: 'Mitr-Medium',
+        // fontFamily: 'Mitr-Medium',
     },
     head2: {
         fontSize: sc.head2,
-        fontFamily: 'Mitr-Medium',
+        // fontFamily: 'Mitr-Medium',
     },
     head1: {
         fontSize: sc.head1,
-        fontFamily: 'Mitr-Medium',
+        // fontFamily: 'Mitr-Medium',
     },
     head: {
         fontSize: sc.head,
-        fontFamily: 'Mitr-Medium',
+        // fontFamily: 'Mitr-Medium',
     },
     body: {
         fontSize: sc.body,
-        fontFamily: 'Mitr-Medium',
+        // fontFamily: 'Mitr-Medium',
     },
     title: {
         fontSize: sc.title,
-        fontFamily: 'Mitr-Medium',
+        // fontFamily: 'Mitr-Medium',
     },
     subtitle: {
         fontSize: sc.subtitle,
-        fontFamily: 'Mitr-Medium',
+        // fontFamily: 'Mitr-Medium',
     },
     caption: {
         fontSize: sc.caption,
