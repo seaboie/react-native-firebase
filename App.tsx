@@ -86,6 +86,28 @@ const App = () => {
     setInputLastName(cardValue.lastName);
   }
 
+  const cardLongPress = (cardIndex: number, cardValue: DataProps) => {
+    Alert.alert("Oops !!!", "Are you sure You want to Delete : \n" + cardValue.firstName + " " + cardValue.lastName, 
+    [
+      {
+        text: "ลบ",
+        onPress: async() => {
+          try {
+            await addOrUpdateDatabase(cardIndex)
+            .remove()
+          } catch (e) {}
+        }
+      },
+      {
+        text: "ไม่ลบ",
+        onPress: () => {
+
+        }
+      }
+    ]
+    );
+  }
+
   useEffect(() => {
     handleData()
 
@@ -154,6 +176,9 @@ const App = () => {
                     <TouchableOpacity
                       onPress={() => {
                         cardPress(item.index, item.item);
+                      }}
+                      onLongPress={() => {
+                        cardLongPress(item.index, item.item);
                       }}
                       style={[{ height: sc.buttonAuthHeight, elevation: sc.body, shadowColor: 'black', shadowOpacity: 0.1, shadowOffset: { width: 0, height: 0 }, shadowRadius: sc.maxSpace, backgroundColor: 'white', padding: sc.padMid, margin: sc.caption }]} >
                       <Text style={[]}>{item.item.firstName} {item.item.lastName}</Text>
